@@ -3,6 +3,8 @@ Powershell scrip`s for IT admins
 
 
 #----------------------------------------------------#
+
+
 To run the silene unistaller need to follow certain craterias
 Every installer have ceratin keys that makes him run in silent mode ,you just need to find them
 Researching silent options for the specific software is just a onetime effort
