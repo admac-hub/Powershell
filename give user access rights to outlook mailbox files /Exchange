@@ -1,0 +1,38 @@
+## Mailbox calendar permission 
+
+Install-Module PowershellGet -Force
+Install-Module -Name ExchangeOnlineManagement
+
+ 
+
+Connect-ExchangeOnline -UserPrincipalName admin@yourdomain.com
+
+ 
+
+(Sign in using Apg.admin creds)
+get-mailboxpermission -Identity main_user@yourdomain.com -user user@yourdomain.com
+
+Add-MailboxFolderPermission -Identity main_user@yourdomain.com:\Contacts -user  user@yourdomain.com -AccessRights Editor
+Add-MailboxFolderPermission -Identity main_user@yourdomain.com:\Calendar -user  user@yourdomain.com -AccessRights Editor
+
+
+
+
+#########################################
+#Query access rights for the account    #
+#########################################
+
+$mailboxes = Get-Mailbox -ResultSize Unlimited
+
+$editorCount = 0
+$userEmail = sbannon@bvlp.com  # Replace with the email address of the user you want to check
+foreach ($mailbox in $mailboxes) {
+    $ContactsPermission = Get-MailboxFolderPermission -Identity 
+	($mailbox.PrimarySmtpAddress + ":\Contacts") -ErrorAction SilentlyContinue | Where-Object 
+	{ $_.User -like $userEmail -and $_.AccessRights -eq "Editor" }
+    if ($ContactsPermission) {
+        $editorCount++
+    }
+}
+
+Write-Host "Number of Contactss where the user has editor access: $editorCount"
