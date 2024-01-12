@@ -1,0 +1,28 @@
+Import-Module ActiveDirectory
+# Set the full OU path (including parent OUs if any)
+$ouPath = "OU=Affiliated,OU=Employees,OU=BabsonUsers,DC=babson,DC=edu"
+
+# Specify the output file path
+$outputFilePath = "C:\Path\To\Output\File.txt"
+# Imput admin credentials to execute the script
+$adminCredentials = Get-Credential -Message "Enter credentials for an admin account"
+# Get users from the specified OU
+$users = Get-ADUser -Filter * -SearchBase $ouPath
+
+# Clear existing content in the output file
+Clear-Content -Path $outputFilePath -Force
+
+# Iterate through each user and disable their account if status is "Not Active"
+foreach ($user in $users) {
+    $userStatus = if ($user.Enabled) { "Active" } else { "Not Active" }
+
+    if ($userStatus -eq "Not Active") {
+        # Disable the user account
+        Disable-ADAccount -Identity $user.SamAccountName  -Credential $adminCredentials
+        Add-Content -Path $outputFilePath -Value "$($user.SamAccountName): Account Disabled"
+    } else {
+        Add-Content -Path $outputFilePath -Value "$($user.SamAccountName): $userStatus"
+    }
+}
+
+Write-Host "User status information written to $outputFilePath"
